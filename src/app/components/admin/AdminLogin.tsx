@@ -121,7 +121,7 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
           </button>
 
           <div className="text-center">
-            <button
+            {/* <button
               type="button"
               onClick={() => setIsSignupMode(!isSignupMode)}
               className="text-blue-400 hover:text-blue-300 text-sm font-mono"
@@ -130,7 +130,7 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
                 ? '← Back to Login' 
                 : 'Need to create admin account? →'
               }
-            </button>
+            </button> */}
           </div>
         </form>
 
