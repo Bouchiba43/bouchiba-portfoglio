@@ -3,6 +3,8 @@
 import { motion } from 'framer-motion'
 import { ChevronDownIcon, DownloadIcon } from 'lucide-react'
 import Scene from '../3d/Scene'
+import Image from 'next/image'
+// import ProfessionalScene from '../3d/ProfessionalScene' // Alternative professional version
 
 export default function Hero() {
   const scrollToAbout = () => {
@@ -40,13 +42,33 @@ export default function Hero() {
 
   return (
     <section id="home" className="relative h-screen flex items-center justify-center overflow-hidden">
-      {/* 3D Background */}
+      {/* Enhanced 3D Background */}
       <div className="absolute inset-0 z-0">
         <Scene />
+        {/* You can swap this with ProfessionalScene for the interactive data visualization version */}
       </div>
       
-      {/* Terminal-style overlay */}
-      <div className="absolute inset-0 bg-black/30 z-10" />
+      {/* Improved gradient overlay for better text readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/60 z-10" />
+      
+      {/* Kubernetes Logo - Top Left */}
+      <motion.div
+        initial={{ opacity: 0, x: -50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 1, delay: 0.2 }}
+        className="absolute top-8 left-8 z-30"
+      >
+        <div className="flex items-center gap-3 bg-gray-900/80 backdrop-blur-sm border border-blue-500/30 rounded-lg px-4 py-2">
+          <Image 
+            src="/uploads/k8s-log.svg" 
+            alt="Kubernetes Logo" 
+            width={32} 
+            height={32} 
+            className="w-8 h-8"
+          />
+          <span className="text-blue-400 font-mono text-sm hidden sm:block">In a serious relationship with Kubernetes</span>
+        </div>
+      </motion.div>
       
       {/* Content */}
       <div className="relative z-20 text-center px-4">
@@ -54,7 +76,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.5 }}
-          className="bg-gray-900/80 backdrop-blur-sm border border-green-500/30 rounded-lg p-8 font-mono max-w-4xl mx-auto"
+          className="bg-gray-900/90 backdrop-blur-md border border-green-500/40 rounded-lg p-8 font-mono max-w-4xl mx-auto shadow-2xl"
         >
           <motion.pre
             initial={{ opacity: 0 }}
