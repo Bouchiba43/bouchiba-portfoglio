@@ -17,6 +17,13 @@ export const metadata: Metadata = {
   title: "DevOps Portfolio | Bouchiba Ahmed Seddik",
   description:
     "Passionate DevOps Engineer specializing in cloud infrastructure, containerization, and CI/CD automation",
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/icon.svg', sizes: '64x64', type: 'image/svg+xml' },
+    ],
+    apple: '/icon.svg',
+  },
 };
 
 export default function RootLayout({
@@ -26,6 +33,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="apple-touch-icon" href="/icon.svg" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
