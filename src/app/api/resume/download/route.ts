@@ -1,27 +1,31 @@
 import { NextResponse } from 'next/server'
-import { existsSync, readFileSync } from 'fs'
-import path from 'path'
+import { db } from '@/app/lib/firebase'
+import { doc, getDoc } from 'firebase/firestore'
 
 export async function GET() {
   try {
-    const resumePath = path.join(process.cwd(), 'public', 'uploads', 'resume.pdf')
+    const resumeDoc = doc(db, 'resume', 'current')
+    const docSnap = await getDoc(resumeDoc)
     
-    if (!existsSync(resumePath)) {
+    if (!docSnap.exists()) {
       return NextResponse.json(
         { error: 'Resume not found' },
         { status: 404 }
       )
     }
 
-    const file = readFileSync(resumePath)
-    
-    return new NextResponse(file, {
+    const resumeData = docSnap.data()
+    const base64Data = resumeData.data
+    const buffer = Buffer.from(base64Data, 'base64')
+
+    return new NextResponse(buffer, {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename="Bouchiba_Ahmed_Seddik_Resume.pdf"',
-        'Content-Length': file.length.toString(),
+        'Content-Disposition': 'attachment; filename="resume.pdf"',
+        'Content-Length': buffer.length.toString(),
       },
     })
+
   } catch (error) {
     console.error('Download error:', error)
     return NextResponse.json(

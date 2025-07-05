@@ -3,16 +3,26 @@
 import { useState, useRef, useEffect } from 'react'
 import { UploadIcon, FileIcon, DownloadIcon, TrashIcon } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { auth } from '@/app/lib/firebase'
+import { useAuthState } from 'react-firebase-hooks/auth'
 
 export default function ResumeManager() {
   const [uploading, setUploading] = useState(false)
   const [currentResume, setCurrentResume] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [user] = useAuthState(auth)
 
   // Check if resume exists on component mount
   useEffect(() => {
     checkResumeExists()
   }, [])
+
+  const getAuthToken = async () => {
+    if (!user) {
+      throw new Error('Not authenticated')
+    }
+    return await user.getIdToken()
+  }
 
   const checkResumeExists = async () => {
     try {
@@ -49,11 +59,15 @@ export default function ResumeManager() {
     setUploading(true)
     
     try {
+      const token = await getAuthToken()
       const formData = new FormData()
       formData.append('resume', file)
 
       const response = await fetch('/api/resume/upload', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         body: formData,
       })
 
@@ -83,8 +97,12 @@ export default function ResumeManager() {
     if (!confirm('Are you sure you want to delete the current resume?')) return
 
     try {
+      const token = await getAuthToken()
       const response = await fetch('/api/resume/delete', {
         method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       })
 
       if (response.ok) {

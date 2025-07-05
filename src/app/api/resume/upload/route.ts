@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile, mkdir } from 'fs/promises'
-import { existsSync } from 'fs'
-import path from 'path'
+import { db } from '@/app/lib/firebase'
+import { doc, setDoc } from 'firebase/firestore'
 
 export async function POST(request: NextRequest) {
   try {
+    // Simple token check - in a real production app, you'd want more robust auth
+    const authHeader = request.headers.get('authorization')
+    const idToken = authHeader?.replace('Bearer ', '')
+    
+    if (!idToken) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      )
+    }
+
     const formData = await request.formData()
     const file = formData.get('resume') as File
 
@@ -23,24 +33,21 @@ export async function POST(request: NextRequest) {
     }
 
     const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
+    const base64 = Buffer.from(bytes).toString('base64')
 
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
-    if (!existsSync(uploadsDir)) {
-      await mkdir(uploadsDir, { recursive: true })
-    }
-
-    // Use a fixed filename for the resume
-    const filename = 'resume.pdf'
-    const filepath = path.join(uploadsDir, filename)
-
-    // Write the file
-    await writeFile(filepath, buffer)
+    // Store in Firestore as base64
+    const resumeDoc = doc(db, 'resume', 'current')
+    await setDoc(resumeDoc, {
+      filename: 'resume.pdf',
+      data: base64,
+      contentType: 'application/pdf',
+      size: file.size,
+      uploadedAt: new Date()
+    })
 
     return NextResponse.json({ 
       message: 'Resume uploaded successfully',
-      filename: filename
+      filename: 'resume.pdf'
     })
 
   } catch (error) {

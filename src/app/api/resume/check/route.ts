@@ -1,22 +1,26 @@
 import { NextResponse } from 'next/server'
-import { existsSync } from 'fs'
-import path from 'path'
+import { db } from '@/app/lib/firebase'
+import { doc, getDoc } from 'firebase/firestore'
 
 export async function GET() {
   try {
-    const resumePath = path.join(process.cwd(), 'public', 'uploads', 'resume.pdf')
+    const resumeDoc = doc(db, 'resume', 'current')
+    const docSnap = await getDoc(resumeDoc)
     
-    if (existsSync(resumePath)) {
-      return NextResponse.json({ 
-        exists: true,
-        filename: 'resume.pdf'
-      })
-    } else {
+    if (!docSnap.exists()) {
       return NextResponse.json({ 
         exists: false,
         filename: null
       })
     }
+
+    const resumeData = docSnap.data()
+    
+    return NextResponse.json({ 
+      exists: true,
+      filename: resumeData.filename || 'resume.pdf'
+    })
+
   } catch (error) {
     console.error('Check resume error:', error)
     return NextResponse.json(
