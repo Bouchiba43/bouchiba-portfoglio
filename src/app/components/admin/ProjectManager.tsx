@@ -3,14 +3,112 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { PlusIcon, EditIcon, TrashIcon, SaveIcon, XIcon, LinkIcon, UploadIcon } from 'lucide-react'
+import { PlusIcon, EditIcon, TrashIcon, SaveIcon, XIcon, LinkIcon, UploadIcon, GripVerticalIcon } from 'lucide-react'
 import { useProjects } from '@/app/hooks/useProjects'
 import type { Project } from '@/app/types'
 import toast from 'react-hot-toast'
 import Image from 'next/image'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import {
+  useSortable,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+
+// Sortable Project Item Component
+function SortableProjectItem({ project, onEdit, onDelete }: { 
+  project: Project; 
+  onEdit: (project: Project) => void;
+  onDelete: (id: string) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: project.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
+  return (
+    <motion.div
+      ref={setNodeRef}
+      style={style}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className={`bg-gray-800 border border-gray-600 rounded-lg p-4 flex items-start gap-3 ${
+        isDragging ? 'z-50' : ''
+      }`}
+    >
+      {/* Drag Handle */}
+      <div
+        {...attributes}
+        {...listeners}
+        className="mt-1 cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-white transition-colors"
+      >
+        <GripVerticalIcon size={16} />
+      </div>
+
+      {/* Project Content */}
+      <div className="flex-1">
+        <h3 className="text-lg font-bold text-white mb-2">{project.title}</h3>
+        <p className="text-gray-300 mb-2">{project.description}</p>
+        <div className="flex flex-wrap gap-2 mb-2">
+          {project.technologies.map(tech => (
+            <span
+              key={tech}
+              className="bg-blue-600 text-white px-2 py-1 rounded text-sm"
+            >
+              {tech}
+            </span>
+          ))}
+        </div>
+        <div className="text-sm text-gray-400">
+          <div>GitHub: {project.githubUrl}</div>
+          {project.liveUrl && <div>Live: {project.liveUrl}</div>}
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => onEdit(project)}
+          className="text-blue-400 hover:text-blue-300 p-2"
+        >
+          <EditIcon size={16} />
+        </button>
+        <button
+          onClick={() => onDelete(project.id)}
+          className="text-red-400 hover:text-red-300 p-2"
+        >
+          <TrashIcon size={16} />
+        </button>
+      </div>
+    </motion.div>
+  )
+}
 
 export default function ProjectManager() {
-  const { projects, loading, addProject, updateProject, deleteProject } = useProjects()
+  const { projects, loading, addProject, updateProject, deleteProject, reorderProjects } = useProjects()
   const [isEditing, setIsEditing] = useState<string | null>(null)
   const [showAddForm, setShowAddForm] = useState(false)
   const [technologiesInput, setTechnologiesInput] = useState('')
@@ -112,6 +210,32 @@ export default function ProjectManager() {
         toast.success('Project deleted successfully!')
       } catch {
         toast.error('Failed to delete project')
+      }
+    }
+  }
+
+  // Drag and Drop handlers
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  )
+
+  const handleDragEnd = async ({ active, over }: DragEndEvent) => {
+    if (!active.id || !over?.id) {
+      return
+    }
+
+    if (active.id !== over.id) {
+      const oldIndex = projects.findIndex(project => project.id === active.id)
+      const newIndex = projects.findIndex(project => project.id === over.id)
+
+      const reorderedProjects = arrayMove(projects, oldIndex, newIndex)
+
+      try {
+        await reorderProjects(reorderedProjects)
+        toast.success('Project order updated!')
+      } catch {
+        toast.error('Failed to update project order')
       }
     }
   }
@@ -325,49 +449,27 @@ export default function ProjectManager() {
       )}
 
       {/* Projects List */}
-      <div className="grid gap-4">
-        {projects.map((project) => (
-          <motion.div
-            key={project.id}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="bg-gray-800 border border-gray-600 rounded-lg p-4 flex justify-between items-start"
-          >
-            <div className="flex-1">
-              <h3 className="text-lg font-bold text-white mb-2">{project.title}</h3>
-              <p className="text-gray-300 mb-2">{project.description}</p>
-              <div className="flex flex-wrap gap-2 mb-2">
-                {project.technologies.map(tech => (
-                  <span
-                    key={tech}
-                    className="bg-blue-600 text-white px-2 py-1 rounded text-sm"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-              <div className="text-sm text-gray-400">
-                <div>GitHub: {project.githubUrl}</div>
-                {project.liveUrl && <div>Live: {project.liveUrl}</div>}
-              </div>
-            </div>
-            <div className="flex gap-2 ml-4">
-              <button
-                onClick={() => handleEdit(project)}
-                className="text-blue-400 hover:text-blue-300 p-2"
-              >
-                <EditIcon size={16} />
-              </button>
-              <button
-                onClick={() => handleDelete(project.id)}
-                className="text-red-400 hover:text-red-300 p-2"
-              >
-                <TrashIcon size={16} />
-              </button>
-            </div>
-          </motion.div>
-        ))}
-      </div>
+      <DndContext
+        sensors={sensors}
+        onDragEnd={handleDragEnd}
+        collisionDetection={closestCenter}
+      >
+        <SortableContext
+          items={projects.map(project => project.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          <div className="grid gap-4">
+            {projects.map((project) => (
+              <SortableProjectItem
+                key={project.id}
+                project={project}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
 
       {projects.length === 0 && (
         <div className="text-center text-gray-400 py-8">

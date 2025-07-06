@@ -1,6 +1,6 @@
 // hooks/useProjects.ts
 import { useState, useEffect } from 'react'
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, orderBy, query } from 'firebase/firestore'
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, orderBy, query, writeBatch } from 'firebase/firestore'
 import { db } from '@/app/lib/firebase'
 import type { Project } from '@/app/types'
 
@@ -15,12 +15,13 @@ export function useProjects() {
   const fetchProjects = async () => {
     try {
       console.log('Fetching projects from Firestore...')
-      const q = query(collection(db, 'projects'), orderBy('createdAt', 'desc'))
+      const q = query(collection(db, 'projects'), orderBy('order', 'asc'))
       const querySnapshot = await getDocs(q)
       const projectsData = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate() || new Date()
+        createdAt: doc.data().createdAt?.toDate() || new Date(),
+        order: doc.data().order ?? 0
       })) as Project[]
       console.log('Projects fetched successfully:', projectsData.length)
       setProjects(projectsData)
@@ -37,15 +38,18 @@ export function useProjects() {
   const addProject = async (project: Omit<Project, 'id'>) => {
     try {
       console.log('Adding project to Firestore:', project.title)
+      // Set order to be last (highest number)
+      const maxOrder = Math.max(...projects.map(p => p.order), -1)
       const projectData = {
         ...project,
+        order: maxOrder + 1,
         createdAt: new Date()
       }
       const docRef = await addDoc(collection(db, 'projects'), projectData)
       console.log('Project added successfully with ID:', docRef.id)
       
       const newProject = { ...projectData, id: docRef.id }
-      setProjects(prev => [newProject, ...prev])
+      setProjects(prev => [...prev, newProject].sort((a, b) => a.order - b.order))
       return newProject
     } catch (error) {
       console.error('Error adding project:', error)
@@ -83,12 +87,38 @@ export function useProjects() {
     }
   }
 
+  const reorderProjects = async (reorderedProjects: Project[]) => {
+    try {
+      console.log('Reordering projects...')
+      const batch = writeBatch(db)
+      
+      reorderedProjects.forEach((project, index) => {
+        const projectRef = doc(db, 'projects', project.id)
+        batch.update(projectRef, { order: index })
+      })
+      
+      await batch.commit()
+      
+      // Update local state
+      const updatedProjects = reorderedProjects.map((project, index) => ({
+        ...project,
+        order: index
+      }))
+      setProjects(updatedProjects)
+      console.log('Projects reordered successfully')
+    } catch (error) {
+      console.error('Error reordering projects:', error)
+      throw error
+    }
+  }
+
   return {
     projects,
     loading,
     addProject,
     updateProject,
     deleteProject,
+    reorderProjects,
     refetch: fetchProjects
   }
 }
@@ -104,6 +134,7 @@ function getMockProjects(): Project[] {
       githubUrl: 'https://github.com/yourusername/k8s-automation',
       liveUrl: 'https://k8s-dashboard.example.com',
       imageUrl: 'https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?w=800&h=600&fit=crop',
+      order: 0,
       createdAt: new Date('2024-01-15')
     },
     {
@@ -113,6 +144,7 @@ function getMockProjects(): Project[] {
       technologies: ['Jenkins', 'Docker', 'SonarQube', 'AWS', 'Ansible'],
       githubUrl: 'https://github.com/yourusername/jenkins-pipeline',
       imageUrl: 'https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=800&h=600&fit=crop',
+      order: 1,
       createdAt: new Date('2024-02-10')
     }
   ]
