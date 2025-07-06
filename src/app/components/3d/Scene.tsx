@@ -1,6 +1,23 @@
 'use client'
 
 export default function Scene() {
+  // Generate deterministic positions for consistent SSR/CSR rendering
+  const generateDotProps = (index: number) => {
+    // Use index-based calculations for consistent positioning
+    const seed = index * 137.508; // Golden angle for better distribution
+    const top = ((seed % 100) + (index * 7) % 100) % 100;
+    const left = ((seed * 1.618) % 100 + (index * 11) % 100) % 100;
+    const duration = 3 + (index % 4);
+    const delay = (index % 20) * 0.1;
+    
+    return {
+      top: `${top}%`,
+      left: `${left}%`,
+      animation: `float ${duration}s ease-in-out infinite`,
+      animationDelay: `${delay}s`
+    };
+  };
+
   return (
     <div className="absolute inset-0 overflow-hidden">
       {/* Animated Background Grid */}
@@ -28,12 +45,7 @@ export default function Scene() {
             <div
               key={i}
               className="absolute w-2 h-2 bg-white/30 rounded-full animate-pulse"
-              style={{
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                animation: `float ${3 + Math.random() * 4}s ease-in-out infinite`,
-                animationDelay: `${Math.random() * 2}s`
-              }}
+              style={generateDotProps(i)}
             />
           ))}
         </div>

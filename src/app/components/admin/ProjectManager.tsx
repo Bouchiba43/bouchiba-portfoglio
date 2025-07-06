@@ -3,16 +3,19 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { PlusIcon, EditIcon, TrashIcon, SaveIcon, XIcon } from 'lucide-react'
+import { PlusIcon, EditIcon, TrashIcon, SaveIcon, XIcon, LinkIcon, UploadIcon } from 'lucide-react'
 import { useProjects } from '@/app/hooks/useProjects'
 import type { Project } from '@/app/types'
 import toast from 'react-hot-toast'
+import Image from 'next/image'
 
 export default function ProjectManager() {
   const { projects, loading, addProject, updateProject, deleteProject } = useProjects()
   const [isEditing, setIsEditing] = useState<string | null>(null)
   const [showAddForm, setShowAddForm] = useState(false)
   const [technologiesInput, setTechnologiesInput] = useState('')
+  const [imageInputType, setImageInputType] = useState<'url' | 'upload'>('url')
+  const [isUploading, setIsUploading] = useState(false)
   const [formData, setFormData] = useState<Partial<Project>>({
     title: '',
     description: '',
@@ -32,8 +35,47 @@ export default function ProjectManager() {
       imageUrl: ''
     })
     setTechnologiesInput('')
+    setImageInputType('url')
     setIsEditing(null)
     setShowAddForm(false)
+  }
+
+  const handleImageUpload = async (file: File) => {
+    setIsUploading(true)
+    
+    try {
+      const formData = new FormData()
+      formData.append('image', file)
+      
+      // Get auth token from localStorage (assuming you have auth setup)
+      const token = localStorage.getItem('adminToken') || 'dummy-token'
+      
+      const response = await fetch('/api/projects/upload-image', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Upload failed' }))
+        const errorMessage = (errorData as { error?: string }).error || 'Upload failed'
+        throw new Error(errorMessage)
+      }
+      
+      const result = await response.json()
+      
+      // Update form data with the uploaded image URL
+      setFormData(prev => ({ ...prev, imageUrl: result.imageUrl }))
+      toast.success('Image uploaded successfully!')
+      
+    } catch (error) {
+      console.error('Upload error:', error)
+      toast.error(error instanceof Error ? error.message : 'Failed to upload image')
+    } finally {
+      setIsUploading(false)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -128,13 +170,92 @@ export default function ProjectManager() {
               </div>
 
               <div>
-                <label className="block text-gray-300 mb-2">Image URL</label>
-                <input
-                  type="url"
-                  value={formData.imageUrl || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, imageUrl: e.target.value }))}
-                  className="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
-                />
+                <label className="block text-gray-300 mb-2">Project Image</label>
+                
+                {/* Image Input Type Selector */}
+                <div className="flex gap-2 mb-3">
+                  <button
+                    type="button"
+                    onClick={() => setImageInputType('url')}
+                    className={`flex items-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+                      imageInputType === 'url'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    }`}
+                  >
+                    <LinkIcon size={14} />
+                    URL
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setImageInputType('upload')}
+                    className={`flex items-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+                      imageInputType === 'upload'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    }`}
+                  >
+                    <UploadIcon size={14} />
+                    Upload
+                  </button>
+                </div>
+
+                {/* URL Input */}
+                {imageInputType === 'url' && (
+                  <input
+                    type="url"
+                    value={formData.imageUrl || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, imageUrl: e.target.value }))}
+                    className="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                    placeholder="https://example.com/image.jpg"
+                  />
+                )}
+
+                {/* File Upload */}
+                {imageInputType === 'upload' && (
+                  <div className="space-y-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          handleImageUpload(file)
+                        }
+                      }}
+                      className="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-white focus:border-blue-500 focus:outline-none file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-sm file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+                      disabled={isUploading}
+                    />
+                    {isUploading && (
+                      <div className="flex items-center gap-2 text-blue-400 text-sm">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-400"></div>
+                        Uploading image...
+                      </div>
+                    )}
+                    {formData.imageUrl && imageInputType === 'upload' && (
+                      <div className="text-green-400 text-sm">
+                        ✓ Image uploaded successfully
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Image Preview */}
+                {formData.imageUrl && (
+                    <div className="mt-3">
+                    <Image
+                      src={formData.imageUrl}
+                      alt="Project preview"
+                      width={200}
+                      height={128}
+                      className="w-full max-w-xs h-32 object-cover rounded border border-gray-600"
+                      onError={() => {
+                      setFormData(prev => ({ ...prev, imageUrl: '' }))
+                      toast.error('Failed to load image')
+                      }}
+                    />
+                    </div>
+                )}
               </div>
             </div>
 
