@@ -7,6 +7,7 @@ import Blog from "./components/sections/Blog";
 import Contact from "./components/sections/Contact";
 import MobileNavigation from "./components/ui/MobileNavigation";
 import ThemeToggle from "./components/ui/ThemeToggle";
+import AdvancedChatBot from "./components/ui/ChatBot";
 import { Toaster } from 'react-hot-toast';
 
 export default function Home() {
@@ -15,6 +16,7 @@ export default function Home() {
       <Toaster position="top-right" />
       <MobileNavigation />
       <ThemeToggle />
+      <AdvancedChatBot />
       
       <main>
         <Hero />
