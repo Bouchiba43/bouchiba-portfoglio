@@ -131,7 +131,11 @@ export default function AdvancedChatBot() {
     // Handle special actions
     switch (reply) {
       case 'Send email now':
-        window.open('mailto:Bouchibaahmed43@gmail.com', '_blank')
+      case 'Contact directly':
+      case 'Use contact form':
+      case 'Open contact form':
+        document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' })
+        setIsOpen(false)
         return
       case 'View LinkedIn profile':
         window.open('https://linkedin.com/in/bouchiba43', '_blank')
@@ -144,19 +148,16 @@ export default function AdvancedChatBot() {
       case 'View detailed resume':
         window.open('/api/resume/download', '_blank')
         return
-      case 'Use contact form':
-      case 'Open contact form':
-        document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' })
-        setIsOpen(false)
-        return
       case 'View all projects':
       case 'Show projects':
       case 'View project portfolio':
+      case 'View projects section':
         document.querySelector('#projects')?.scrollIntoView({ behavior: 'smooth' })
         setIsOpen(false)
         return
-      case 'Contact directly':
-        window.open('mailto:Bouchibaahmed43@gmail.com', '_blank')
+      case 'See project portfolio':
+      case 'View GitHub repository':
+        window.open('https://github.com/Bouchiba43', '_blank')
         return
       default:
         // Send as regular message

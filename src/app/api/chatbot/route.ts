@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Groq from 'groq-sdk'
+import { collection, getDocs, query, orderBy } from 'firebase/firestore'
+import { db } from '@/app/lib/firebase'
 
 // Type definitions for Groq API responses
 interface GroqCompletion {
@@ -15,101 +17,38 @@ interface GroqError extends Error {
   message: string;
 }
 
+// Portfolio data interfaces
+interface Project {
+  id: string
+  title: string
+  description: string
+  technologies: string[]
+  githubUrl: string
+  liveUrl?: string
+  imageUrl: string
+  order: number
+  createdAt: Date
+}
+
+interface Experience {
+  id: string
+  company: string
+  position: string
+  description: string
+  technologies: string[]
+  startDate: Date
+  endDate?: Date | null
+  isCurrentRole: boolean
+  location: string
+  companyUrl?: string
+  logoUrl?: string
+  createdAt: Date
+}
+
 // Initialize Groq client with API key
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY || '' // You'll need to add this to your .env file
 })
-
-// Ahmed's DevOps knowledge base for context
-const AHMED_CONTEXT = `
-You are Ahmed Bouchiba's AI DevOps Assistant. You represent Ahmed Bouchiba, a passionate DevOps Engineer with 3+ years of experience.
-
-AHMED'S PROFILE:
-- Name: Bouchiba Ahmed Seddik
-- Role: Senior DevOps Engineer
-- Location: Sousse, Tunisia (Remote-friendly)
-- Experience: 3+ years in DevOps and Cloud Infrastructure
-- Email: Bouchibaahmed43@gmail.com
-- LinkedIn: linkedin.com/in/bouchiba43
-- GitHub: github.com/Bouchiba43
-
-TECHNICAL EXPERTISE:
-Containerization & Orchestration:
-- Docker: Multi-stage builds, security scanning, registry management
-- Kubernetes: Multi-node production clusters, GitOps with ArgoCD, Helm charts
-- Container Security: Trivy scanning, distroless images, RBAC, network policies
-
-CI/CD & Automation:
-- Jenkins: Pipeline as Code, multi-branch workflows, quality gates
-- GitHub Actions: Automated testing, security scanning, deployment
-- ArgoCD: GitOps continuous deployment, automated rollbacks
-- SonarQube: Code quality and security analysis
-
-Infrastructure as Code:
-- Terraform: Multi-cloud modules, state management, compliance scanning
-- Ansible: Configuration management, automation playbooks
-- CloudFormation: AWS-native infrastructure deployment
-- Helm: Kubernetes application packaging and deployment
-
-Cloud Platforms:
-- AWS: EC2, EKS, Lambda, RDS, S3, VPC, IAM, CloudWatch
-- Google Cloud: GKE, Cloud Functions, BigQuery, Cloud Storage
-- Azure: AKS, Functions, CosmosDB, ARM Templates
-- Multi-cloud deployments and cost optimization
-
-Monitoring & Observability:
-- Prometheus: Metrics collection, custom rules, alerting
-- Grafana: Real-time dashboards, visualization
-- ELK Stack: Centralized logging (Elasticsearch, Logstash, Kibana)
-- Jaeger: Distributed tracing for microservices
-- Datadog: APM and infrastructure monitoring
-
-FEATURED PROJECTS:
-1. Kubernetes Cluster Automation
-   - Automated K8s deployment with Terraform and GitOps using ArgoCD
-   - Multi-node production clusters with HA setup
-   - Auto-scaling, monitoring integration, zero-downtime deployments
-   - Technologies: Kubernetes, Terraform, ArgoCD, AWS, Helm
-
-2. CI/CD Pipeline Implementation
-   - Jenkins-based pipeline with automated testing and security scanning
-   - Multi-environment deployment, pipeline as code
-   - Reduced deployment time by 70%
-   - Technologies: Jenkins, Docker, SonarQube, AWS, Ansible
-
-3. Infrastructure as Code
-   - Terraform modules for multi-cloud environments
-   - Reusable modules, state management, cost optimization
-   - Technologies: Terraform, AWS, GCP, Azure, Ansible
-
-ACHIEVEMENTS:
-- 50+ successful cloud deployments across multiple platforms
-- 500+ containers orchestrated and managed
-- 99.9% system uptime maintained through robust practices
-- 70% reduction in deployment times through automation
-- Led infrastructure automation for 50+ microservices
-- Implemented GitOps workflows reducing deployment errors by 85%
-
-PERSONALITY & COMMUNICATION STYLE:
-- Professional but approachable
-- Technical expert who can explain complex concepts simply
-- Passionate about DevOps culture and best practices
-- Helpful and detailed in responses
-- Focuses on practical, real-world solutions
-- Emphasizes automation, reliability, and scalability
-
-INSTRUCTIONS:
-1. Always respond as Ahmed's representative, knowledgeable about his experience
-2. Be helpful, detailed, and professional
-3. Provide specific technical details when asked
-4. Offer to show projects, provide contact information, or discuss opportunities
-5. If asked about availability, mention he's open to DevOps consulting, contract work, and new opportunities
-6. Always end responses with relevant suggestions or questions to continue the conversation
-7. Keep responses informative but conversational
-8. Use emojis appropriately to make responses engaging
-9. Focus on Ahmed's DevOps expertise and practical experience
-10. If users ask about specific technologies, provide detailed insights based on Ahmed's experience
-`
 
 // List of supported models to try in order of preference
 const SUPPORTED_MODELS = [
@@ -157,6 +96,75 @@ async function callGroqWithFallback(messages: { role: 'system' | 'user' | 'assis
   }
 }
 
+// Fetch portfolio data from Firebase
+async function getPortfolioData() {
+  try {
+    // Fetch projects
+    const projectsQuery = query(collection(db, 'projects'), orderBy('order', 'asc'))
+    const projectsSnapshot = await getDocs(projectsQuery)
+    const projects = projectsSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate() || new Date(),
+      order: doc.data().order ?? 0
+    })) as Project[]
+
+    // Fetch experiences
+    const experiencesQuery = query(collection(db, 'experiences'), orderBy('startDate', 'desc'))
+    const experiencesSnapshot = await getDocs(experiencesQuery)
+    const experiences = experiencesSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      startDate: doc.data().startDate?.toDate() || new Date(),
+      endDate: doc.data().endDate?.toDate() || null,
+      createdAt: doc.data().createdAt?.toDate() || new Date()
+    })) as Experience[]
+
+    return { projects, experiences }
+  } catch (error) {
+    console.error('Error fetching portfolio data:', error)
+    return { projects: [], experiences: [] }
+  }
+}
+
+// Generate dynamic context with real portfolio data
+async function generateAhmedContext() {
+  const { projects, experiences } = await getPortfolioData()
+  
+  // Generate concise projects section
+  const projectsContext = projects.length > 0 ? `
+PROJECTS: ${projects.map(p => `${p.title} (${p.technologies.slice(0,3).join(', ')})`).join(' | ')}` : ''
+
+  // Generate concise experiences section  
+  const experiencesContext = experiences.length > 0 ? `
+EXPERIENCE: ${experiences.map(exp => {
+    const duration = exp.isCurrentRole ? 'Current' : 'Past'
+    return `${exp.position} at ${exp.company} (${duration})`
+  }).join(' | ')}` : ''
+
+  return `
+You are Ahmed Bouchiba's AI DevOps Assistant. Ahmed is a Senior DevOps Engineer with 3+ years experience.
+
+PROFILE:
+Name: Bouchiba Ahmed Seddik | Role: Senior DevOps Engineer | Location: Sousse, Tunisia
+Email: Bouchibaahmed43@gmail.com | LinkedIn: linkedin.com/in/bouchiba43 | GitHub: github.com/Bouchiba43
+
+SKILLS: Docker, Kubernetes, Jenkins, GitHub Actions, ArgoCD, Terraform, Ansible, AWS, GCP, Azure, Prometheus, Grafana, Go, Python, FastAPI, Next.js
+
+${projectsContext}
+${experiencesContext}
+
+KEY PROJECTS:
+• Ritual Growth: Go Gin backend, authentication system, PostgreSQL, Ginkgo/Gomega testing, Cobra data generator
+• SpoutBreeze: Open source webinar platform based on BigBlueButton for large audiences
+
+ACHIEVEMENTS: 50+ cloud deployments, 99.9% uptime, 70% faster deployments, 500+ containers managed
+
+Be helpful, professional, and technical. Offer contact info and project details when relevant. Keep responses concise but informative.
+`
+}
+
+// Update the POST function to use dynamic context that includes real portfolio data from the database
 export async function POST(request: NextRequest) {
   try {
     const { message, conversationHistory = [] } = await request.json()
@@ -176,11 +184,14 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    // Generate dynamic context with real portfolio data
+    const dynamicContext = await generateAhmedContext()
+
     // Build conversation context
     const messages = [
       {
         role: "system" as const,
-        content: AHMED_CONTEXT
+        content: dynamicContext
       },
       // Add conversation history
       ...conversationHistory.slice(-6).map((msg: { isBot: boolean; text: string }) => ({
