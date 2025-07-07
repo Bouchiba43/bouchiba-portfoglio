@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MessageCircleIcon, XIcon, SendIcon, BotIcon, UserIcon, SparklesIcon, MinimizeIcon } from 'lucide-react'
+import { MessageCircleIcon, XIcon, SendIcon, UserIcon, SparklesIcon, MinimizeIcon } from 'lucide-react'
+import Image from 'next/image'
 
 interface Message {
   id: string
@@ -217,14 +218,20 @@ export default function AdvancedChatBot() {
         <div className="flex items-center justify-between p-4 border-b border-gray-700/50 bg-gradient-to-r from-blue-600/20 to-purple-600/20">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                <BotIcon size={20} className="text-white" />
+              <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-blue-500">
+                <Image
+                  src="/uploads/ahmed-avatar.png"
+                  alt="Ahmed's AI Assistant"
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-gray-900"></div>
             </div>
             <div>
-              <h3 className="font-bold text-white text-sm">AI DevOps Assistant</h3>
-              <p className="text-xs text-blue-300">Powered by Advanced AI</p>
+              <h3 className="font-bold text-white text-sm">Ahmed&apos;s AI Assistant</h3>
+              <p className="text-xs text-blue-300">Powered by Llama 3.1</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -255,8 +262,14 @@ export default function AdvancedChatBot() {
                   className={`flex gap-3 ${message.isBot ? 'justify-start' : 'justify-end'}`}
                 >
                   {message.isBot && (
-                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                      <BotIcon size={14} className="text-white" />
+                    <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-blue-500 flex-shrink-0 mt-1">
+                      <Image
+                        src="/uploads/ahmed-avatar.png"
+                        alt="Ahmed"
+                        width={32}
+                        height={32}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                   )}
                   
@@ -307,8 +320,14 @@ export default function AdvancedChatBot() {
                   animate={{ opacity: 1, y: 0 }}
                   className="flex gap-3 justify-start"
                 >
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <BotIcon size={14} className="text-white" />
+                  <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-blue-500 flex-shrink-0 mt-1">
+                    <Image
+                      src="/uploads/ahmed-avatar.png"
+                      alt="Ahmed"
+                      width={32}
+                      height={32}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div className="bg-gradient-to-r from-gray-800 to-gray-700 text-gray-100 p-3 rounded-2xl border border-blue-500/20">
                     <div className="flex items-center space-x-2">
@@ -317,7 +336,7 @@ export default function AdvancedChatBot() {
                         <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
                         <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                       </div>
-                      <span className="text-xs text-gray-400">AI thinking...</span>
+                      <span className="text-xs text-gray-400">Ahmed&apos;s AI thinking...</span>
                     </div>
                   </div>
                 </motion.div>

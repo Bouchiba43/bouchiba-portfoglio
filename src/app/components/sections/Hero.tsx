@@ -72,6 +72,49 @@ export default function Hero() {
       
       {/* Content */}
       <div className="relative z-20 text-center px-4">
+        {/* Professional Avatar */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5, y: -30 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.3 }}
+          className="mb-8"
+        >
+          <div className="relative mx-auto w-32 h-32 md:w-40 md:h-40">
+            {/* Glowing ring around avatar */}
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-green-500 p-1 animate-pulse">
+              <div className="w-full h-full rounded-full bg-gray-900"></div>
+            </div>
+            
+            {/* Avatar image */}
+            <motion.div
+              animate={{ 
+                y: [0, -8, 0],
+                rotateY: [0, 5, 0, -5, 0]
+              }}
+              transition={{ 
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="absolute inset-1 rounded-full overflow-hidden border-2 border-gray-800"
+            >
+              <Image
+                src="/uploads/ahmed-avatar.png"
+                alt="Bouchiba Ahmed Seddik - DevOps Engineer"
+                width={160}
+                height={160}
+                className="w-full h-full object-cover"
+                priority
+              />
+            </motion.div>
+            
+            {/* Status indicator */}
+            <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 rounded-full border-2 border-gray-900 flex items-center justify-center">
+              <div className="w-3 h-3 bg-green-400 rounded-full animate-ping"></div>
+            </div>
+          </div>
+        </motion.div>
+
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}

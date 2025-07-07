@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { ServerIcon, CloudIcon, CodeIcon, DatabaseIcon } from 'lucide-react'
 import TerminalAnimation from '../ui/TerminalAnimation'
+import Image from 'next/image'
 
 const stats = [
     { label: 'Years Experience', value: '3+', icon: CodeIcon },
@@ -24,12 +25,40 @@ export default function About() {
                 </motion.h2>
 
                 <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
-                    {/* Terminal About Info */}
+                    {/* Professional Avatar & Terminal About Info */}
                     <motion.div
                         initial={{ opacity: 0, x: -50 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         className="space-y-6"
                     >
+                        {/* Professional Avatar Section */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="text-center mb-8"
+                        >
+                            <div className="relative mx-auto w-24 h-24 md:w-32 md:h-32 mb-4">
+                                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-green-500 p-0.5">
+                                    <div className="w-full h-full rounded-full bg-gray-900 flex items-center justify-center">
+                                        <Image
+                                            src="/uploads/ahmed-avatar.png"
+                                            alt="Ahmed Bouchiba - DevOps Engineer"
+                                            width={120}
+                                            height={120}
+                                            className="w-full h-full object-cover rounded-full"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Online status */}
+                                <div className="absolute bottom-1 right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-gray-900"></div>
+                            </div>
+                            <div className="font-mono text-green-400 text-sm">
+                                $ status: online and ready to deploy! 🚀
+                            </div>
+                        </motion.div>
+
                         <div className="bg-black border border-green-500 rounded-lg p-6 font-mono">
                             <div className="text-green-400 text-sm">
                                 <div className="mb-4">
