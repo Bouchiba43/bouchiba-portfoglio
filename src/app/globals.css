@@ -91,3 +91,53 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   letter-spacing: -0.02em;
 }
+
+/* Line clamp utility for text truncation */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Force equal heights for all Swiper slides */
+.projects-swiper .swiper-wrapper {
+  align-items: stretch !important;
+}
+
+.projects-swiper .swiper-slide {
+  height: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.projects-swiper .swiper-slide > div {
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.skills-swiper .swiper-wrapper {
+  align-items: stretch !important;
+}
+
+.skills-swiper .swiper-slide {
+  height: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.skills-swiper .swiper-slide > div {
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}

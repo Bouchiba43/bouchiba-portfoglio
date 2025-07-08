@@ -15,6 +15,9 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@emailjs/browser": "^4.4.1",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/material": "^7.2.0",
     "@react-three/drei": "^10.3.0",
     "@react-three/fiber": "^9.1.4",
     "@types/three": "^0.177.0",
@@ -31,6 +34,7 @@
     "react-firebase-hooks": "^5.1.1",
     "react-hot-toast": "^2.5.2",
     "resend": "^4.6.0",
+    "swiper": "^11.2.10",
     "three": "^0.177.0",
     "zod": "^3.25.74"
   },
