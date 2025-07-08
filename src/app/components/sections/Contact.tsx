@@ -3,7 +3,16 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
-import { MailIcon, LinkedinIcon, GithubIcon, MapPinIcon, AlertCircleIcon, CheckCircleIcon, ClockIcon } from 'lucide-react'
+import { 
+  MailIcon, 
+  LinkedinIcon, 
+  GithubIcon, 
+  MapPinIcon, 
+  AlertCircleIcon, 
+  ClockIcon, 
+  SendIcon,
+  CalendarIcon
+} from 'lucide-react'
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -11,349 +20,310 @@ export default function Contact() {
     email: '',
     message: ''
   })
-  const [loading, setLoading] = useState(false)
-  const [verifyingEmail, setVerifyingEmail] = useState(false)
-  const [errors, setErrors] = useState({
-    name: '',
-    email: '',
-    message: ''
-  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errors, setErrors] = useState<{[key: string]: string}>({})
 
-  // Email validation function
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return emailRegex.test(email)
-  }
-
-  // Form validation
-  const validateForm = (): boolean => {
-    const newErrors = { name: '', email: '', message: '' }
-    let isValid = true
-
-    // Name validation
+  const validateForm = () => {
+    const newErrors: {[key: string]: string} = {}
+    
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required'
-      isValid = false
-    } else if (formData.name.trim().length < 2) {
+    } else if (formData.name.length < 2) {
       newErrors.name = 'Name must be at least 2 characters'
-      isValid = false
-    } else if (formData.name.trim().length > 50) {
-      newErrors.name = 'Name must be less than 50 characters'
-      isValid = false
     }
-
-    // Email validation
+    
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required'
-      isValid = false
-    } else if (!validateEmail(formData.email)) {
-      newErrors.email = 'Please enter a valid email address'
-      isValid = false
-    } else if (formData.email.length > 100) {
-      newErrors.email = 'Email must be less than 100 characters'
-      isValid = false
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email'
     }
-
-    // Message validation
+    
     if (!formData.message.trim()) {
       newErrors.message = 'Message is required'
-      isValid = false
-    } else if (formData.message.trim().length < 10) {
+    } else if (formData.message.length < 10) {
       newErrors.message = 'Message must be at least 10 characters'
-      isValid = false
-    } else if (formData.message.trim().length > 500) {
-      newErrors.message = 'Message must be less than 500 characters'
-      isValid = false
     }
-
+    
     setErrors(newErrors)
-    return isValid
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }))
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    // Validate form before submission
-    if (!validateForm()) {
-      toast.error('Please fix the form errors before submitting')
-      return
-    }
+    if (!validateForm()) return
 
-    setLoading(true)
-    setVerifyingEmail(true)
-
-    // Show verification toast
-    const verifyToast = toast.loading('Verifying email address...', {
-      icon: '🔍',
-    })
-
+    setIsSubmitting(true)
+    
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
       })
 
-      const data = await response.json()
-
-      // Dismiss verification toast
-      toast.dismiss(verifyToast)
-      setVerifyingEmail(false)
-
       if (response.ok) {
-        toast.success(
-          <div className="flex flex-col">
-            <span className="font-semibold">Message sent successfully! 🎉</span>
-            <span className="text-sm opacity-90">Check your email for a confirmation message.</span>
-          </div>,
-          {
-            duration: 6000,
-            icon: '✅',
-          }
-        )
+        toast.success('Message sent successfully! I\'ll get back to you soon.')
         setFormData({ name: '', email: '', message: '' })
-        setErrors({ name: '', email: '', message: '' })
       } else {
-        if (data.error?.includes('not deliverable') || data.error?.includes('does not exist')) {
-          toast.error(
-            <div className="flex flex-col">
-              <span className="font-semibold">Email verification failed</span>
-              <span className="text-sm opacity-90">{data.error}</span>
-            </div>,
-            {
-              duration: 8000,
-              icon: '❌',
-            }
-          )
-        } else {
-          toast.error(data.error || 'Failed to send message', {
-            duration: 5000,
-          })
-        }
+        throw new Error('Failed to send message')
       }
     } catch (error) {
-      toast.dismiss(verifyToast)
-      setVerifyingEmail(false)
       console.error('Contact form error:', error)
-      toast.error(
-        <div className="flex flex-col">
-          <span className="font-semibold">Connection error</span>
-          <span className="text-sm opacity-90">Please try again or contact me directly.</span>
-        </div>,
-        {
-          duration: 6000,
-        }
-      )
+      toast.error('Failed to send message. Please try again or contact me directly.')
     } finally {
-      setLoading(false)
-    }
-  }
-
-  // Handle input changes with real-time validation
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-    
-    // Clear error when user starts typing
-    if (errors[field as keyof typeof errors]) {
-      setErrors(prev => ({ ...prev, [field]: '' }))
+      setIsSubmitting(false)
     }
   }
 
   return (
-    <section id="contact" className="py-20 bg-gray-900">
-      <div className="container mx-auto px-4 max-w-4xl">
-        <motion.h2
+    <section id="contact" className="py-24 bg-gradient-to-br from-gray-900 via-black to-gray-900 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(59,130,246,0.1),transparent)] pointer-events-none"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,rgba(16,185,129,0.1),transparent)] pointer-events-none"></div>
+      
+      <div className="container mx-auto px-4">
+        <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
-          className="text-4xl font-bold text-center text-white mb-12 font-mono"
+          transition={{ duration: 0.8 }}
+          className="text-center mb-16"
         >
-          $ echo &quot;Let&apos;s connect&quot;
-        </motion.h2>
+          <h2 className="text-5xl md:text-6xl font-bold mb-6">
+            <span className="section-title">Let&apos;s Connect</span>
+          </h2>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            Ready to collaborate on your next DevOps project? Let&apos;s discuss how we can build something amazing together.
+          </p>
+          <div className="mt-4 font-mono text-sm text-green-400">
+            <span className="text-gray-500">$</span> echo &quot;Let&apos;s connect and build the future&quot;
+          </div>
+        </motion.div>
         
-        <div className="grid md:grid-cols-2 gap-12">
-          {/* Terminal-style contact info */}
+        <div className="grid lg:grid-cols-2 gap-12 max-w-7xl mx-auto">
+          {/* Contact Information */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
-            className="space-y-6"
+            transition={{ duration: 0.8 }}
+            className="space-y-8"
           >
-            <div className="bg-black border border-green-500 rounded-lg p-6 font-mono">
-              <div className="text-green-400">
-                <div className="mb-4">
-                  <span className="text-gray-500">$</span> cat contact.yaml
+            {/* Professional Info Card */}
+            <div className="glass-card-strong p-8 rounded-xl">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                  <MailIcon className="w-8 h-8 text-white" />
                 </div>
-                <div className="pl-4 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <MailIcon size={16} />
-                    <span className="text-blue-400">email:</span> Bouchibaahmed43@gmail.com
+                <div>
+                  <h3 className="text-2xl font-bold text-white">Get In Touch</h3>
+                  <p className="text-gray-400">Available for new opportunities</p>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                  <MailIcon className="w-5 h-5 text-blue-400" />
+                  <div>
+                    <p className="text-sm text-gray-400">Email</p>
+                    <p className="text-white font-medium">Bouchibaahmed43@gmail.com</p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <LinkedinIcon size={16} />
-                    <span className="text-blue-400">linkedin:</span> /in/bouchiba43
+                </div>
+                
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                  <MapPinIcon className="w-5 h-5 text-green-400" />
+                  <div>
+                    <p className="text-sm text-gray-400">Location</p>
+                    <p className="text-white font-medium">Sousse, Tunisia</p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <GithubIcon size={16} />
-                    <span className="text-blue-400">github:</span> /Bouchiba43
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <MapPinIcon size={16} />
-                    <span className="text-blue-400">location:</span> Sousse, Tunisia
+                </div>
+                
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                  <ClockIcon className="w-5 h-5 text-purple-400" />
+                  <div>
+                    <p className="text-sm text-gray-400">Response Time</p>
+                    <p className="text-white font-medium">Within 24 hours</p>
                   </div>
                 </div>
               </div>
             </div>
-            
+
             {/* Social Links */}
-            <div className="flex gap-4 justify-center">
-              <a
-                href="mailto:Bouchibaahmed43@gmail.com"
-                className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg transition-colors"
-              >
-                <MailIcon size={20} />
-              </a>
-              <a
-                href="https://linkedin.com/in/bouchiba43"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg transition-colors"
-              >
-                <LinkedinIcon size={20} />
-              </a>
-              <a
-                href="https://github.com/Bouchiba43"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-gray-600 hover:bg-gray-700 text-white p-3 rounded-lg transition-colors"
-              >
-                <GithubIcon size={20} />
-              </a>
+            <div className="glass-card-strong p-8 rounded-xl">
+              <h3 className="text-xl font-bold text-white mb-6">Connect on Social</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <a
+                  href="mailto:Bouchibaahmed43@gmail.com"
+                  className="glass-card p-4 hover:bg-white/10 text-center rounded-lg transition-all duration-300 hover:scale-105 group"
+                >
+                  <MailIcon className="w-8 h-8 text-blue-400 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                  <p className="text-sm text-gray-300 group-hover:text-white">Email</p>
+                </a>
+                
+                <a
+                  href="https://linkedin.com/in/bouchiba43"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="glass-card p-4 hover:bg-white/10 text-center rounded-lg transition-all duration-300 hover:scale-105 group"
+                >
+                  <LinkedinIcon className="w-8 h-8 text-blue-500 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                  <p className="text-sm text-gray-300 group-hover:text-white">LinkedIn</p>
+                </a>
+                
+                <a
+                  href="https://github.com/Bouchiba43"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="glass-card p-4 hover:bg-white/10 text-center rounded-lg transition-all duration-300 hover:scale-105 group"
+                >
+                  <GithubIcon className="w-8 h-8 text-gray-300 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                  <p className="text-sm text-gray-300 group-hover:text-white">GitHub</p>
+                </a>
+                
+                <a
+                  href="https://calendly.com/bouchiba43"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="glass-card p-4 hover:bg-white/10 text-center rounded-lg transition-all duration-300 hover:scale-105 group"
+                >
+                  <CalendarIcon className="w-8 h-8 text-green-400 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                  <p className="text-sm text-gray-300 group-hover:text-white">Schedule</p>
+                </a>
+              </div>
             </div>
 
-            {/* Security & Privacy Notice */}
-            <div className="bg-gray-800 border border-gray-600 rounded-lg p-4">
-              <div className="flex items-start gap-3">
-                <CheckCircleIcon size={20} className="text-green-400 mt-0.5 flex-shrink-0" />
-                <div className="text-sm text-gray-300">
-                  <p className="font-semibold text-white mb-2">Secure Contact Form</p>
-                  <ul className="space-y-1 text-xs">
-                    <li>✅ Real email verification (not just format validation)</li>
-                    <li>✅ Automatic confirmation email sent to you</li>
-                    <li>✅ Secure data handling and storage</li>
-                    <li>✅ Typical response time: 24-48 hours</li>
-                  </ul>
+            {/* Terminal-style info */}
+            <div className="glass-card-strong p-6 rounded-xl">
+              <div className="bg-black/50 border border-green-500/30 rounded-lg p-4 font-mono text-sm">
+                <div className="text-green-400 space-y-1">
+                  <div><span className="text-gray-500">$</span> cat contact.yaml</div>
+                  <div className="pl-4 space-y-1 text-gray-300">
+                    <div><span className="text-blue-400">name:</span> &quot;Bouchiba Ahmed Seddik&quot;</div>
+                    <div><span className="text-blue-400">role:</span> &quot;Passionate DevOps Engineer&quot;</div>
+                    <div><span className="text-blue-400">status:</span> &quot;available&quot;</div>
+                    <div><span className="text-blue-400">timezone:</span> &quot;GMT+1 (Tunisia)&quot;</div>
+                  </div>
                 </div>
               </div>
             </div>
           </motion.div>
 
-          {/* Contact form */}
-          <motion.form
+          {/* Contact Form */}
+          <motion.div
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
-            onSubmit={handleSubmit}
-            className="space-y-6"
+            transition={{ duration: 0.8 }}
           >
-            <div>
-              <label className="block text-gray-300 mb-2">Name</label>
-              <input
-                type="text"
-                required
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                className={`w-full bg-gray-800 border rounded-lg px-4 py-2 text-white focus:outline-none transition-colors ${
-                  errors.name 
-                    ? 'border-red-500 focus:border-red-500' 
-                    : 'border-gray-600 focus:border-blue-500'
-                }`}
-                placeholder="Your full name"
-                maxLength={50}
-              />
-              {errors.name && (
-                <div className="flex items-center gap-1 mt-1 text-red-400 text-sm">
-                  <AlertCircleIcon size={14} />
-                  {errors.name}
+            <div className="glass-card-strong p-8 rounded-xl">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center">
+                  <SendIcon className="w-6 h-6 text-white" />
                 </div>
-              )}
-              <div className="text-right text-gray-400 text-xs mt-1">
-                {formData.name.length}/50
+                <div>
+                  <h3 className="text-2xl font-bold text-white">Send Message</h3>
+                  <p className="text-gray-400">I&apos;ll respond within 24 hours</p>
+                </div>
               </div>
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <label className="block text-gray-300 mb-2 font-medium">Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    className={`w-full glass-card border-2 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none transition-all duration-300 ${
+                      errors.name 
+                        ? 'border-red-500 focus:border-red-400' 
+                        : 'border-gray-600 focus:border-blue-500'
+                    }`}
+                    placeholder="Your full name"
+                    maxLength={50}
+                  />
+                  {errors.name && (
+                    <div className="flex items-center gap-2 mt-2 text-red-400 text-sm">
+                      <AlertCircleIcon size={16} />
+                      {errors.name}
+                    </div>
+                  )}
+                </div>
+                
+                <div>
+                  <label className="block text-gray-300 mb-2 font-medium">Email</label>
+                  <input
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    className={`w-full glass-card border-2 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none transition-all duration-300 ${
+                      errors.email 
+                        ? 'border-red-500 focus:border-red-400' 
+                        : 'border-gray-600 focus:border-blue-500'
+                    }`}
+                    placeholder="your.email@example.com"
+                    maxLength={100}
+                  />
+                  {errors.email && (
+                    <div className="flex items-center gap-2 mt-2 text-red-400 text-sm">
+                      <AlertCircleIcon size={16} />
+                      {errors.email}
+                    </div>
+                  )}
+                </div>
+                
+                <div>
+                  <label className="block text-gray-300 mb-2 font-medium">Message</label>
+                  <textarea
+                    required
+                    rows={6}
+                    value={formData.message}
+                    onChange={(e) => handleInputChange('message', e.target.value)}
+                    className={`w-full glass-card border-2 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none transition-all duration-300 resize-vertical ${
+                      errors.message 
+                        ? 'border-red-500 focus:border-red-400' 
+                        : 'border-gray-600 focus:border-blue-500'
+                    }`}
+                    placeholder="Tell me about your project or just say hello..."
+                    maxLength={1000}
+                  />
+                  {errors.message && (
+                    <div className="flex items-center gap-2 mt-2 text-red-400 text-sm">
+                      <AlertCircleIcon size={16} />
+                      {errors.message}
+                    </div>
+                  )}
+                  <div className="text-right text-gray-400 text-sm mt-2">
+                    {formData.message.length}/1000
+                  </div>
+                </div>
+                
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 text-white py-4 px-6 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <SendIcon size={20} />
+                      Send Message
+                    </>
+                  )}
+                </button>
+              </form>
             </div>
-            
-            <div>
-              <label className="block text-gray-300 mb-2">Email</label>
-              <input
-                type="email"
-                required
-                value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                className={`w-full bg-gray-800 border rounded-lg px-4 py-2 text-white focus:outline-none transition-colors ${
-                  errors.email 
-                    ? 'border-red-500 focus:border-red-500' 
-                    : 'border-gray-600 focus:border-blue-500'
-                }`}
-                placeholder="your.email@example.com"
-                maxLength={100}
-              />
-              {errors.email && (
-                <div className="flex items-center gap-1 mt-1 text-red-400 text-sm">
-                  <AlertCircleIcon size={14} />
-                  {errors.email}
-                </div>
-              )}
-              {verifyingEmail && (
-                <div className="flex items-center gap-1 mt-1 text-blue-400 text-sm">
-                  <ClockIcon size={14} className="animate-spin" />
-                  Verifying email address...
-                </div>
-              )}
-              <div className="text-right text-gray-400 text-xs mt-1">
-                {formData.email.length}/100
-              </div>
-            </div>
-            
-            <div>
-              <label className="block text-gray-300 mb-2">Message</label>
-              <textarea
-                required
-                rows={5}
-                value={formData.message}
-                onChange={(e) => handleInputChange('message', e.target.value)}
-                className={`w-full bg-gray-800 border rounded-lg px-4 py-2 text-white focus:outline-none transition-colors resize-vertical ${
-                  errors.message 
-                    ? 'border-red-500 focus:border-red-500' 
-                    : 'border-gray-600 focus:border-blue-500'
-                }`}
-                placeholder="Tell me about your project or just say hello..."
-                maxLength={500}
-              />
-              {errors.message && (
-                <div className="flex items-center gap-1 mt-1 text-red-400 text-sm">
-                  <AlertCircleIcon size={14} />
-                  {errors.message}
-                </div>
-              )}
-              <div className="text-right text-gray-400 text-sm mt-1">
-                {formData.message.length}/500
-              </div>
-            </div>
-            
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-3 rounded-lg transition-colors font-medium"
-            >
-              {loading ? (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  {verifyingEmail ? 'Verifying Email...' : 'Sending...'}
-                </div>
-              ) : (
-                'Send Message'
-              )}
-            </button>
-          </motion.form>
+          </motion.div>
         </div>
       </div>
     </section>

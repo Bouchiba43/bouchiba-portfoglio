@@ -1,10 +1,9 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ChevronDownIcon, DownloadIcon } from 'lucide-react'
+import { ChevronDownIcon, DownloadIcon, MapPinIcon, BriefcaseIcon } from 'lucide-react'
 import Scene from '../3d/Scene'
 import Image from 'next/image'
-// import ProfessionalScene from '../3d/ProfessionalScene' // Alternative professional version
 
 export default function Hero() {
   const scrollToAbout = () => {
@@ -23,7 +22,6 @@ export default function Hero() {
 
   const downloadResume = async () => {
     try {
-      // Check if resume exists first
       const checkResponse = await fetch('/api/resume/check')
       const checkData = await checkResponse.json()
       
@@ -32,7 +30,6 @@ export default function Hero() {
         return
       }
       
-      // Trigger download
       window.open('/api/resume/download', '_blank')
     } catch (error) {
       console.error('Download error:', error)
@@ -45,54 +42,64 @@ export default function Hero() {
       {/* Enhanced 3D Background */}
       <div className="absolute inset-0 z-0">
         <Scene />
-        {/* You can swap this with ProfessionalScene for the interactive data visualization version */}
       </div>
       
-      {/* Improved gradient overlay for better text readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/60 z-10" />
+      {/* Professional gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/50 to-black/70 z-10" />
       
-      {/* Kubernetes Logo - Top Left */}
+      {/* Status Badge - Top Right */}
+      <motion.div
+        initial={{ opacity: 0, x: 50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 1, delay: 0.2 }}
+        className="absolute top-8 right-8 z-30"
+      >
+        <div className="glass-card px-4 py-3 flex items-center gap-2">
+          <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+          <span className="text-green-400 font-mono text-sm">Available for opportunities</span>
+        </div>
+      </motion.div>
+
+      {/* Kubernetes Badge - Top Left */}
       <motion.div
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 1, delay: 0.2 }}
         className="absolute top-8 left-8 z-30"
       >
-        <div className="flex items-center gap-3 bg-gray-900/80 backdrop-blur-sm border border-blue-500/30 rounded-lg px-4 py-2">
+        <div className="glass-card px-4 py-3 flex items-center gap-3">
           <Image 
             src="/uploads/k8s-log.svg" 
             alt="Kubernetes Logo" 
-            width={32} 
-            height={32} 
-            className="w-8 h-8"
+            width={24} 
+            height={24} 
+            className="w-6 h-6"
           />
-          <span className="text-blue-400 font-mono text-sm hidden sm:block">In a serious relationship with Kubernetes</span>
+          <span className="text-blue-400 font-mono text-sm hidden sm:block">Kubernetes Expert</span>
         </div>
       </motion.div>
       
-      {/* Content */}
-      <div className="relative z-20 text-center px-4">
+      {/* Main Content */}
+      <div className="relative z-20 text-center px-4 max-w-6xl mx-auto">
         {/* Professional Avatar */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.5, y: -30 }}
+          initial={{ opacity: 0, scale: 0.8, y: -30 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.3 }}
           className="mb-8"
         >
-          <div className="relative mx-auto w-32 h-32 md:w-40 md:h-40">
-            {/* Glowing ring around avatar */}
-            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-green-500 p-1 animate-pulse">
+          <div className="relative mx-auto w-40 h-40 md:w-48 md:h-48">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-green-500 p-1 animate-pulse-glow">
               <div className="w-full h-full rounded-full bg-gray-900"></div>
             </div>
             
-            {/* Avatar image */}
             <motion.div
               animate={{ 
-                y: [0, -8, 0],
-                rotateY: [0, 5, 0, -5, 0]
+                y: [0, -6, 0],
+                rotateY: [0, 3, 0, -3, 0]
               }}
               transition={{ 
-                duration: 4,
+                duration: 6,
                 repeat: Infinity,
                 ease: "easeInOut"
               }}
@@ -101,74 +108,107 @@ export default function Hero() {
               <Image
                 src="/uploads/ahmed-avatar.png"
                 alt="Bouchiba Ahmed Seddik - DevOps Engineer"
-                width={160}
-                height={160}
+                width={192}
+                height={192}
                 className="w-full h-full object-cover"
                 priority
               />
             </motion.div>
             
-            {/* Status indicator */}
-            <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 rounded-full border-2 border-gray-900 flex items-center justify-center">
-              <div className="w-3 h-3 bg-green-400 rounded-full animate-ping"></div>
+            <div className="absolute bottom-2 right-2 w-8 h-8 bg-green-500 rounded-full border-3 border-gray-900 flex items-center justify-center">
+              <div className="w-4 h-4 bg-green-400 rounded-full animate-ping"></div>
             </div>
           </div>
         </motion.div>
 
+        {/* Enhanced Info Card */}
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.5 }}
-          className="bg-gray-900/90 backdrop-blur-md border border-green-500/40 rounded-lg p-8 font-mono max-w-4xl mx-auto shadow-2xl"
+          className="glass-card-strong p-8 md:p-12 max-w-5xl mx-auto shadow-2xl"
         >
-          <motion.pre
+          {/* Professional Header */}
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 2, delay: 1 }}
-            className="text-green-400 text-sm mb-4"
+            transition={{ duration: 1, delay: 0.8 }}
+            className="mb-6"
           >
-{`$ whoami
-> Passionate DevOps Engineer
-$ kubectl get skills
-> Docker, Kubernetes, Terraform, AWS, CI/CD`}
-          </motion.pre>
-          
+            <div className="flex items-center justify-center gap-6 mb-4 text-sm text-gray-400">
+              <div className="flex items-center gap-2">
+                <MapPinIcon size={16} />
+                <span>Sousse, Tunisia</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <BriefcaseIcon size={16} />
+                <span>3+ Years Experience</span>
+              </div>
+            </div>
+          </motion.div>
+
           <motion.h1
-            initial={{ opacity: 0, scale: 0.8 }}
+            initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 1.5 }}
-            className="text-4xl md:text-6xl font-bold text-white mb-4"
+            transition={{ duration: 0.8, delay: 1 }}
+            className="text-5xl md:text-7xl font-bold mb-6"
           >
-            Bouchiba Ahmed Seddik
+            <span className="section-title">Bouchiba Ahmed Seddik</span>
           </motion.h1>
           
-          <motion.p
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 2 }}
-            className="text-xl text-gray-300 mb-8"
+            transition={{ duration: 1, delay: 1.2 }}
+            className="mb-8"
           >
-            Building scalable infrastructure & automating the future
-          </motion.p>
+            <h2 className="text-2xl md:text-3xl font-semibold text-white mb-4">
+              Passionate DevOps Engineer
+            </h2>
+            <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              Specializing in cloud infrastructure, container orchestration, and CI/CD automation. 
+              Building scalable, reliable systems that power modern applications.
+            </p>
+          </motion.div>
+
+          {/* Terminal Output */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 1.4 }}
+            className="bg-black/80 border border-green-500/30 rounded-lg p-6 mb-8 font-mono text-left max-w-2xl mx-auto"
+          >
+            <div className="text-green-400 text-sm space-y-2">
+              <div><span className="text-gray-500">$</span> kubectl get engineer --show-labels</div>
+              <div className="pl-2 text-gray-300">
+                NAME&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;READY&nbsp;&nbsp;&nbsp;STATUS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LABELS
+              </div>
+              <div className="pl-2">
+                ahmed&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1/1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Running&nbsp;&nbsp;&nbsp;
+                <span className="text-blue-400">k8s=expert,aws=proficient</span>
+              </div>
+            </div>
+          </motion.div>
           
+          {/* CTA Buttons */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 2.5 }}
+            transition={{ duration: 0.8, delay: 1.6 }}
             className="flex gap-4 justify-center flex-wrap"
           >
             <button 
               onClick={scrollToProjects}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors flex items-center gap-2"
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 rounded-lg transition-all duration-300 flex items-center gap-3 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
-              View Projects
+              <span className="font-semibold">Explore Projects</span>
             </button>
             <button 
               onClick={downloadResume}
-              className="border border-green-500 text-green-400 hover:bg-green-500 hover:text-black px-6 py-3 rounded-lg transition-colors flex items-center gap-2"
+              className="glass-card border-2 border-green-500 text-green-400 hover:bg-green-500 hover:text-black px-8 py-4 rounded-lg transition-all duration-300 flex items-center gap-3 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
-              <DownloadIcon size={16} />
-              Download Resume
+              <DownloadIcon size={20} />
+              <span className="font-semibold">Download Resume</span>
             </button>
           </motion.div>
         </motion.div>
@@ -178,11 +218,13 @@ $ kubectl get skills
       <motion.button
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 3 }}
+        transition={{ duration: 1, delay: 2 }}
         onClick={scrollToAbout}
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 cursor-pointer"
+        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 cursor-pointer group"
       >
-        <ChevronDownIcon className="w-8 h-8 text-white animate-bounce" />
+        <div className="glass-card p-3 rounded-full group-hover:bg-white/10 transition-colors">
+          <ChevronDownIcon className="w-6 h-6 text-white animate-bounce" />
+        </div>
       </motion.button>
     </section>
   )
