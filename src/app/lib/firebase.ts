@@ -17,12 +17,12 @@ const firebaseConfig = {
 }
 
 // Log configuration (remove in production)
-console.log('Firebase Config Check:', {
-  hasApiKey: !!firebaseConfig.apiKey,
-  hasProjectId: !!firebaseConfig.projectId,
-  hasAuthDomain: !!firebaseConfig.authDomain,
-  projectId: firebaseConfig.projectId // Safe to log project ID
-})
+// console.log('Firebase Config Check:', {
+//   hasApiKey: !!firebaseConfig.apiKey,
+//   hasProjectId: !!firebaseConfig.projectId,
+//   hasAuthDomain: !!firebaseConfig.authDomain,
+//   projectId: firebaseConfig.projectId // Safe to log project ID
+// })
 
 // Validate critical configuration
 if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
