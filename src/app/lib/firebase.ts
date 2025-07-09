@@ -41,6 +41,6 @@ export const storage = getStorage(app)
 // Initialize Analytics (only in browser environment)
 export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null
 
-console.log('Firebase initialized successfully')
+// console.log('Firebase initialized successfully')
 
 export default app
