@@ -19,17 +19,21 @@ import {
   LinuxLogo,
   NextJSLogo 
 } from '../ui/TechLogos'
+import { SkillCard } from '../ui/InteractiveHover'
+import { SectionTransition, StaggerItem } from '../ui/PageTransition'
+import ParticleSystem from '../ui/ParticleSystem'
+import MorphingShapes from '../ui/MorphingShapes'
 
 const skills = [
-  { name: 'Docker', icon: DockerLogo, description: 'Containerization & microservices', proficiency: 95, color: 'bg-gradient-to-br from-blue-500 to-blue-700' },
-  { name: 'Kubernetes', icon: KubernetesLogo, description: 'Container orchestration', proficiency: 90, color: 'bg-gradient-to-br from-blue-600 to-indigo-800' },
-  { name: 'AWS', icon: AWSLogo, description: 'Cloud infrastructure & services', proficiency: 85, color: 'bg-gradient-to-br from-orange-500 to-orange-700' },
-  { name: 'Jenkins', icon: JenkinsLogo, description: 'CI/CD automation & pipelines', proficiency: 88, color: 'bg-gradient-to-br from-red-600 to-red-800' },
-  { name: 'Helm', icon: HelmLogo, description: 'Kubernetes package management', proficiency: 85, color: 'bg-gradient-to-br from-blue-500 to-cyan-600' },
-  { name: 'Go', icon: GoLogo, description: 'Backend systems & APIs', proficiency: 82, color: 'bg-gradient-to-br from-slate-700 to-slate-900' },
-  { name: 'FastAPI', icon: FastAPILogo, description: 'High-performance Python APIs', proficiency: 88, color: 'bg-gradient-to-br from-green-500 to-emerald-600' },
-  { name: 'Linux', icon: LinuxLogo, description: 'System administration & servers', proficiency: 92, color: 'bg-gradient-to-br from-gray-700 to-gray-900' },
-  { name: 'Next.js', icon: NextJSLogo, description: 'Modern React framework', proficiency: 80, color: 'bg-gradient-to-br from-gray-800 to-black' },
+  { name: 'Docker', icon: DockerLogo, description: 'Containerization & microservices', proficiency: 95, color: '#0db7ed' },
+  { name: 'Kubernetes', icon: KubernetesLogo, description: 'Container orchestration', proficiency: 90, color: '#326ce5' },
+  { name: 'AWS', icon: AWSLogo, description: 'Cloud infrastructure & services', proficiency: 85, color: '#ff9900' },
+  { name: 'Jenkins', icon: JenkinsLogo, description: 'CI/CD automation & pipelines', proficiency: 88, color: '#d33833' },
+  { name: 'Helm', icon: HelmLogo, description: 'Kubernetes package management', proficiency: 85, color: '#0f1689' },
+  { name: 'Go', icon: GoLogo, description: 'Backend systems & APIs', proficiency: 82, color: '#00add8' },
+  { name: 'FastAPI', icon: FastAPILogo, description: 'High-performance Python APIs', proficiency: 88, color: '#009688' },
+  { name: 'Linux', icon: LinuxLogo, description: 'System administration & servers', proficiency: 92, color: '#fcc624' },
+  { name: 'Next.js', icon: NextJSLogo, description: 'Modern React framework', proficiency: 80, color: '#000000' },
 ];
 
 export default function Skills() {
@@ -41,23 +45,44 @@ export default function Skills() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.1),transparent)] pointer-events-none"></div>
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(16,185,129,0.1),transparent)] pointer-events-none"></div>
       
+      {/* Particle System */}
+      <ParticleSystem 
+        theme="cyber"
+        density={40}
+        interactive={true}
+        showConnections={false}
+      />
+
+      {/* Morphing Shapes */}
+      <MorphingShapes 
+        size={120} 
+        color="#3b82f6" 
+        duration={4}
+        position="absolute"
+        className="top-20 right-20 opacity-20"
+      />
+      <MorphingShapes 
+        size={80} 
+        color="#10b981" 
+        duration={5}
+        position="absolute"
+        className="bottom-32 left-16 opacity-20"
+      />
+      
       <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-12 md:mb-16"
-        >
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6">
-            <span className="section-title">Technical Expertise</span>
-          </h2>
-          <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-4">
-            Mastering the tools and technologies that power modern DevOps workflows
-          </p>
-          <div className="mt-4 font-mono text-sm text-green-400 hidden md:block">
-            <span className="text-gray-500">$</span> kubectl get skills --show-labels
+        <SectionTransition delay={0} direction="up">
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6">
+              <span className="section-title">Technical Expertise</span>
+            </h2>
+            <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-4">
+              Mastering the tools and technologies that power modern DevOps workflows
+            </p>
+            <div className="mt-4 font-mono text-sm text-green-400 hidden md:block">
+              <span className="text-gray-500">$</span> kubectl get skills --show-labels
+            </div>
           </div>
-        </motion.div>
+        </SectionTransition>
         
         {/* Skills Carousel */}
         <div className="relative max-w-7xl mx-auto">
@@ -148,79 +173,130 @@ export default function Skills() {
             }}
             className="skills-swiper pb-16"
           >
-            {skills.map((skill, index) => {
+            {skills.map((skill) => {
               const IconComponent = skill.icon;
               return (
                 <SwiperSlide key={skill.name}>
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    whileHover={{ scale: 1.03, y: -5 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    onHoverStart={() => setHoveredSkill(skill.name)}
-                    onHoverEnd={() => setHoveredSkill(null)}
-                    className="group h-full"
-                  >
-                    <div className="glass-card-strong p-6 lg:p-8 h-full text-white cursor-pointer transition-all duration-500 hover:border-blue-500/50 hover:shadow-2xl hover:shadow-blue-500/20 rounded-xl">
-                      {/* Skill Icon */}
-                      <div className="flex justify-center mb-6">
-                        <motion.div 
-                          className="relative"
-                          whileHover={{ rotate: 360 }}
-                          transition={{ duration: 0.6 }}
-                        >
-                          <div className="bg-gradient-to-br from-white/10 to-white/5 rounded-2xl p-4 lg:p-6 backdrop-blur-sm border border-white/10 shadow-xl">
-                            <IconComponent className="w-12 h-12 lg:w-16 lg:h-16 drop-shadow-lg" />
-                          </div>
-                        </motion.div>
-                      </div>
-
-                      {/* Skill Name */}
-                      <h3 className="text-xl lg:text-2xl font-bold text-center mb-4 group-hover:text-blue-400 transition-colors">
-                        {skill.name}
-                      </h3>
-
-                      {/* Star Rating */}
-                      {/* <div className="flex justify-center mb-4">
-                        {[...Array(5)].map((_, i) => (
-                          <StarIcon 
-                            key={i} 
-                            className={`w-4 h-4 ${i < Math.floor(skill.proficiency / 20) ? 'text-yellow-400 fill-current' : 'text-gray-600'}`} 
-                          />
-                        ))}
-                      </div> */}
-
-                      {/* Proficiency Bar */}
-                      {/* <div className="mb-4">
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-sm text-gray-400">Proficiency</span>
-                          <span className="text-sm font-semibold text-blue-400">{skill.proficiency}%</span>
-                        </div>
-                        <div className="w-full bg-gray-700 rounded-full h-2">
-                          <motion.div
-                            className="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full"
-                            initial={{ width: 0 }}
-                            whileInView={{ width: `${skill.proficiency}%` }}
-                            transition={{ duration: 1, delay: 0.3 }}
-                          />
-                        </div>
-                      </div> */}
-                      
-                      {/* Description */}
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{
-                          opacity: hoveredSkill === skill.name ? 1 : 0.7,
-                          height: hoveredSkill === skill.name ? 'auto' : 'auto'
-                        }}
-                        className="text-center"
+                  <StaggerItem direction="up" className="h-full">
+                    <div
+                      className="relative overflow-hidden h-full"
+                      onMouseEnter={() => setHoveredSkill(skill.name)}
+                      onMouseLeave={() => setHoveredSkill(null)}
+                    >
+                      <SkillCard
+                        skillColor={skill.color}
+                        className="h-full"
                       >
-                        <p className="text-sm text-gray-300 leading-relaxed">
-                          {skill.description}
-                        </p>
-                      </motion.div>
+                        <div className="glass-card-strong p-6 lg:p-8 h-full text-white cursor-pointer transition-all duration-500 hover:border-blue-500/50 hover:shadow-2xl hover:shadow-blue-500/20 rounded-xl">
+                          {/* Skill Icon */}
+                          <div className="flex justify-center mb-6">
+                            <motion.div 
+                              className="relative"
+                              whileHover={{ 
+                                rotate: 360,
+                                scale: 1.1
+                              }}
+                              transition={{ duration: 0.6 }}
+                            >
+                              <div className="bg-gradient-to-br from-white/10 to-white/5 rounded-2xl p-4 lg:p-6 backdrop-blur-sm border border-white/10 shadow-xl relative overflow-hidden">
+                                <IconComponent className="w-12 h-12 lg:w-16 lg:h-16 drop-shadow-lg relative z-10" />
+                                
+                                {/* Animated background */}
+                                <motion.div
+                                  className="absolute inset-0 rounded-2xl"
+                                  animate={{
+                                    background: hoveredSkill === skill.name
+                                      ? `radial-gradient(circle, ${skill.color}30, transparent)`
+                                      : 'transparent'
+                                  }}
+                                  transition={{ duration: 0.3 }}
+                                />
+                                
+                                {/* Particle effect on hover */}
+                                {hoveredSkill === skill.name && (
+                                  <div className="absolute inset-0 pointer-events-none">
+                                    {[...Array(6)].map((_, i) => (
+                                      <motion.div
+                                        key={i}
+                                        className="absolute w-1 h-1 rounded-full"
+                                        style={{
+                                          backgroundColor: skill.color,
+                                          left: '50%',
+                                          top: '50%',
+                                        }}
+                                        animate={{
+                                          x: [0, (Math.cos(i * 60 * Math.PI / 180) * 30)],
+                                          y: [0, (Math.sin(i * 60 * Math.PI / 180) * 30)],
+                                          opacity: [1, 0],
+                                          scale: [1, 0]
+                                        }}
+                                        transition={{
+                                          duration: 1,
+                                          repeat: Infinity,
+                                          delay: i * 0.1
+                                        }}
+                                      />
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </motion.div>
+                          </div>
+
+                          {/* Skill Name */}
+                          <h3 className="text-xl lg:text-2xl font-bold text-center mb-4 group-hover:text-blue-400 transition-colors">
+                            {skill.name}
+                          </h3>
+
+                          {/* Proficiency Bar */}
+                          {/* <div className="mb-4">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-sm text-gray-400">Proficiency</span>
+                              <span className="text-sm font-semibold text-blue-400">{skill.proficiency}%</span>
+                            </div>
+                            <div className="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
+                              <motion.div
+                                className="h-2 rounded-full"
+                                style={{
+                                  background: `linear-gradient(90deg, ${skill.color}, ${skill.color}88)`
+                                }}
+                                initial={{ width: 0 }}
+                                whileInView={{ width: `${skill.proficiency}%` }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 1.5, delay: 0.3 }}
+                              />
+                            </div>
+                          </div> */}
+                          
+                          {/* Description */}
+                          <motion.div
+                            initial={{ opacity: 0.7 }}
+                            animate={{
+                              opacity: hoveredSkill === skill.name ? 1 : 0.7,
+                              scale: hoveredSkill === skill.name ? 1.05 : 1
+                            }}
+                            transition={{ duration: 0.3 }}
+                            className="text-center"
+                          >
+                            <p className="text-sm text-gray-300 leading-relaxed">
+                              {skill.description}
+                            </p>
+                          </motion.div>
+
+                          {/* Glow effect */}
+                          <motion.div
+                            className="absolute inset-0 rounded-xl pointer-events-none"
+                            animate={{
+                              boxShadow: hoveredSkill === skill.name
+                                ? `0 0 30px ${skill.color}40`
+                                : '0 0 0px transparent'
+                            }}
+                            transition={{ duration: 0.3 }}
+                          />
+                        </div>
+                      </SkillCard>
                     </div>
-                  </motion.div>
+                  </StaggerItem>
                 </SwiperSlide>
               );
             })}
