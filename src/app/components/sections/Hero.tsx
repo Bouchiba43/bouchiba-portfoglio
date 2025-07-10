@@ -42,7 +42,7 @@ export default function Hero() {
   }
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-35">
+    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-30 pb-16">
       {/* Enhanced 3D Background */}
       <div className="absolute inset-0 z-0">
         <Scene />
