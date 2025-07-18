@@ -128,7 +128,7 @@ export default function Hero() {
               >
                 <Image
                   src="/uploads/ahmed-avatar.png"
-                  alt="Bouchiba Ahmed Seddik - DevOps Engineer"
+                  alt="Ahmed Seddik Bouchiba- DevOps Engineer"
                   width={192}
                   height={192}
                   className="w-full h-full object-cover"
@@ -186,7 +186,7 @@ export default function Hero() {
               transition={{ duration: 0.8, delay: 1 }}
               className="text-3xl md:text-5xl lg:text-7xl font-bold mb-4 md:mb-6 leading-tight"
             >
-              <span className="section-title">Bouchiba Ahmed Seddik</span>
+              <span className="section-title">Ahmed Seddik Bouchiba</span>
             </motion.h1>
 
             <motion.div
