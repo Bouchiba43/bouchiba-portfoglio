@@ -9,7 +9,7 @@ import { Navigation, Pagination, Autoplay } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
-import { SectionTransition, StaggerItem } from '../ui/PageTransition'
+import { SectionTransition } from '../ui/PageTransition'
 import ParticleSystem from '../ui/ParticleSystem'
 import MorphingShapes from '../ui/MorphingShapes'
 import { GlassCard } from '../ui/InteractiveHover'
@@ -153,10 +153,11 @@ export default function Blog() {
             navigation
             pagination={{ clickable: true }}
             autoplay={{
-              delay: 4000,
+              delay: 5000,
               disableOnInteraction: false,
             }}
             loop={publishedPosts.length > 1}
+            speed={800}
             breakpoints={{
               640: {
                 slidesPerView: 1,
@@ -173,69 +174,63 @@ export default function Blog() {
             }}
             className="blog-swiper pb-16"
           >
-            {publishedPosts.map((post, index) => (
+            {publishedPosts.map((post) => (
               <SwiperSlide key={post.id}>
-                <StaggerItem direction="up" className="h-full">
-                  <motion.article
-                    whileHover={{ 
-                      scale: 1.02,
-                      y: -5
-                    }}
-                    transition={{ duration: 0.3 }}
-                    className="h-full"
-                  >
-                    <GlassCard className="h-full">
-                      <div className="glass-card-strong p-6 lg:p-8 h-full text-white cursor-pointer transition-all duration-500 hover:border-blue-500/50 hover:shadow-2xl hover:shadow-blue-500/20 rounded-xl flex flex-col">
-                        {/* Post Header */}
-                        <div className="flex items-center gap-4 text-sm text-gray-400 mb-4">
-                          <div className="flex items-center gap-1">
-                            <CalendarIcon size={14} />
-                            {post.publishedAt.toLocaleDateString()}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <ClockIcon size={14} />
-                            {post.readTime} min read
-                          </div>
+                <motion.article
+                  transition={{ duration: 0.6, ease: "easeInOut" }}
+                  className="h-full"
+                >
+                  <GlassCard className="h-full">
+                    <div className=" p-6 lg:p-8 h-[500px] text-white cursor-pointer transition-all duration-800 ease-in-out hover:border-blue-500/50  rounded-xl flex flex-col">
+                      {/* Post Header */}
+                      <div className="flex items-center gap-4 text-sm text-gray-400 mb-4">
+                        <div className="flex items-center gap-1">
+                          <CalendarIcon size={14} />
+                          {post.publishedAt.toLocaleDateString()}
                         </div>
-                        
-                        {/* Post Title */}
-                        <h3 className="text-xl lg:text-2xl font-bold text-white mb-4 line-clamp-3 flex-grow">
-                          {post.title}
-                        </h3>
-                        
-                        {/* Post Excerpt */}
-                        <p className="text-gray-300 mb-6 line-clamp-4 flex-grow">
-                          {post.excerpt}
-                        </p>
-                        
-                        {/* Tags */}
-                        <div className="flex flex-wrap gap-2 mb-6">
-                          {post.tags.slice(0, 3).map(tag => (
-                            <span
-                              key={tag}
-                              className="bg-blue-600/20 text-blue-400 px-3 py-1 rounded-full text-sm flex items-center gap-1 border border-blue-500/30 hover:bg-blue-600/30 transition-colors"
-                            >
-                              <TagIcon size={12} />
-                              {tag}
-                            </span>
-                          ))}
+                        <div className="flex items-center gap-1">
+                          <ClockIcon size={14} />
+                          {post.readTime} min read
                         </div>
-                        
-                        {/* Read More Link */}
-                        <Link
-                          href={`/blog/${post.slug}`}
-                          className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 font-mono text-sm transition-colors group mt-auto"
-                        >
-                          <span>Read more</span>
-                          <ArrowRightIcon 
-                            size={16} 
-                            className="group-hover:translate-x-1 transition-transform duration-200" 
-                          />
-                        </Link>
                       </div>
-                    </GlassCard>
-                  </motion.article>
-                </StaggerItem>
+                      
+                      {/* Post Title */}
+                      <h3 className="text-xl lg:text-2xl font-bold text-white mb-4 line-clamp-3 flex-grow">
+                        {post.title}
+                      </h3>
+                      
+                      {/* Post Excerpt */}
+                      <p className="text-gray-300 mb-6 line-clamp-4 flex-grow">
+                        {post.excerpt}
+                      </p>
+                      
+                      {/* Tags */}
+                      <div className="flex flex-wrap gap-2 mb-6">
+                        {post.tags.slice(0, 3).map(tag => (
+                          <span
+                            key={tag}
+                            className="bg-blue-600/20 text-blue-400 px-3 py-1 rounded-full text-sm flex items-center gap-1 border border-blue-500/30 hover:bg-blue-600/30 transition-colors"
+                          >
+                            <TagIcon size={12} />
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      
+                      {/* Read More Link */}
+                      <Link
+                        href={`/blog/${post.slug}`}
+                        className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 font-mono text-sm transition-colors group mt-auto"
+                      >
+                        <span>Read more</span>
+                        <ArrowRightIcon 
+                          size={16} 
+                          className="group-hover:translate-x-1 transition-transform duration-200" 
+                        />
+                      </Link>
+                    </div>
+                  </GlassCard>
+                </motion.article>
               </SwiperSlide>
             ))}
           </Swiper>
