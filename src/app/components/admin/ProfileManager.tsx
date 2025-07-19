@@ -1,8 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { UploadIcon, UserIcon, CameraIcon, TrashIcon, DownloadIcon } from 'lucide-react'
+import { UploadIcon, UserIcon, CameraIcon, TrashIcon } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { auth } from '@/app/lib/firebase'
 import { useAuthState } from 'react-firebase-hooks/auth'
