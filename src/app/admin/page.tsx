@@ -8,7 +8,9 @@ import AdminLogin from '@/app/components/admin/AdminLogin'
 import ProjectManager from '@/app/components/admin/ProjectManager'
 import ExperienceManager from '@/app/components/admin/ExperienceManager'
 import ResumeManager from '@/app/components/admin/ResumeManager'
-import { LogOutIcon, FolderIcon, FileTextIcon, BriefcaseIcon, FileIcon } from 'lucide-react'
+import ProfileManager from '@/app/components/admin/ProfileManager'
+import BlogManager from '@/app/components/admin/BlogManager'
+import { LogOutIcon, FolderIcon, FileTextIcon, BriefcaseIcon, FileIcon, UserIcon } from 'lucide-react'
 import { Toaster } from 'react-hot-toast'
 import toast from 'react-hot-toast'
 
@@ -117,6 +119,17 @@ export default function AdminPage() {
                   Resume
                 </button>
                 <button
+                  onClick={() => setActiveTab('profile')}
+                  className={`w-full flex items-center gap-2 p-3 rounded transition-colors ${
+                    activeTab === 'profile'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-300 hover:bg-gray-800'
+                  }`}
+                >
+                  <UserIcon size={16} />
+                  Profile Photo
+                </button>
+                <button
                   onClick={() => setActiveTab('blog')}
                   className={`w-full flex items-center gap-2 p-3 rounded transition-colors ${
                     activeTab === 'blog'
@@ -137,13 +150,8 @@ export default function AdminPage() {
               {activeTab === 'projects' && <ProjectManager />}
               {activeTab === 'experience' && <ExperienceManager />}
               {activeTab === 'resume' && <ResumeManager />}
-              {activeTab === 'blog' && (
-                <div className="text-center text-gray-400 py-8">
-                  <FileTextIcon className="w-12 h-12 mx-auto mb-4" />
-                  <h3 className="text-lg font-bold mb-2">Blog Management</h3>
-                  <p>Blog post management coming soon...</p>
-                </div>
-              )}
+              {activeTab === 'profile' && <ProfileManager />}
+              {activeTab === 'blog' && <BlogManager />}
             </div>
           </div>
         </div>

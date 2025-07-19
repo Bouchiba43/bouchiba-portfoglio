@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { ServerIcon, CloudIcon, CodeIcon, DatabaseIcon } from 'lucide-react'
 import TerminalAnimation from '../ui/TerminalAnimation'
 import Image from 'next/image'
+import { useProfile } from '@/app/hooks/useProfile'
 
 const stats = [
     { label: 'Years Experience', value: '3+', icon: CodeIcon },
@@ -13,6 +14,8 @@ const stats = [
 ]
 
 export default function About() {
+    const { avatarUrl } = useProfile()
+    
     return (
         <section id="about" className="py-20 bg-gray-900">
             <div className="container mx-auto px-4">
@@ -42,7 +45,7 @@ export default function About() {
                                 <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-green-500 p-0.5">
                                     <div className="w-full h-full rounded-full bg-gray-900 flex items-center justify-center">
                                         <Image
-                                            src="/uploads/ahmed-avatar.png"
+                                            src={avatarUrl || "/uploads/ahmed-avatar.png"}
                                             alt="Ahmed Bouchiba - DevOps Engineer"
                                             width={120}
                                             height={120}

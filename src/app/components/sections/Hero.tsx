@@ -8,8 +8,11 @@ import ParticleSystem from '../ui/ParticleSystem'
 import { MorphingShapeGroup } from '../ui/MorphingShapes'
 import { EnergyButton, GlassCard } from '../ui/InteractiveHover'
 import { SectionTransition } from '../ui/PageTransition'
+import { useProfile } from '@/app/hooks/useProfile'
 
 export default function Hero() {
+  const { avatarUrl } = useProfile()
+  
   const scrollToAbout = () => {
     const aboutSection = document.querySelector('#about')
     if (aboutSection) {
@@ -127,7 +130,7 @@ export default function Hero() {
                 className="absolute inset-1 rounded-full overflow-hidden border-2 border-gray-800"
               >
                 <Image
-                  src="/uploads/ahmed-avatar.png"
+                  src={avatarUrl || "/uploads/ahmed-avatar.png"}
                   alt="Ahmed Seddik Bouchiba- DevOps Engineer"
                   width={192}
                   height={192}
