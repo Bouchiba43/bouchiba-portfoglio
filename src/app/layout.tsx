@@ -35,8 +35,22 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-        <link rel="apple-touch-icon" href="/icon.svg" />
+        <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico" />
+        <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+        <link rel="manifest" href="/favicon/site.webmanifest" />
+        <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/favicon/web-app-manifest-192x192.png" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/favicon/web-app-manifest-512x512.png" />
+        <meta property="og:title" content="Bouchiba Ahmed Seddik portfolio" />
+        <meta property="og:description" content="Passionate DevOps Engineer specializing in cloud infrastructure, containerization, and CI/CD automation" />
+        <meta property="og:image" content="/favicon/apple-touch-icon.png" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://your-website-url.com" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="Bouchiba Ahmed Seddik portfolio" />
+        <meta name="twitter:description" content="Passionate DevOps Engineer specializing in cloud infrastructure, containerization, and CI/CD automation" />
+        <meta name="twitter:image" content="/favicon/apple-touch-icon.png" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
