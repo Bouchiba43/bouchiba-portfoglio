@@ -187,7 +187,7 @@ export default function Contact() {
                 </a>
                 
                 <a
-                  href="https://calendly.com/bouchiba43"
+                  href="https://cal.craftschoolship.com/ahmed-bouchiba"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="glass-card p-4 hover:bg-white/10 text-center rounded-lg transition-all duration-300 hover:scale-105 group"
